@@ -60,18 +60,25 @@ var stepCount = 0;
 
 var slideContents;
 
-iframe.addEventListener('load', frameLoaded);
 document.addEventListener('keydown', onKeyEvent);
 loadSlide(0);
 
 function loadSlide(n) {
-	iframe.src = 'presentation_data/' + slides[n];
 	slideIndex = n;
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', 'presentation_data/' + slides[n], true);
+	xhr.onreadystatechange = function() {
+		if (this.status !== 200)
+			console.error('Couldn\'t load file');
+		slideContents = this.responseText;
+		slideContents = slideContents.replace(/\t/g, '  ');
+		slideLoaded();
+	};
+xhr.send();
 }
 
-function frameLoaded() {
-	slideContents = iframe.contentDocument.documentElement.outerHTML;
-	slideContents = slideContents.replace(/\t/g, '  ');
+function slideLoaded() {
 	stepCount = getStepCount(slideContents);
 	if (stepIndex > 0)
 		stepIndex = 0;
@@ -83,7 +90,8 @@ function frameLoaded() {
 function loadStep(i) {
 	stepIndex = i;
 	var html = getHTMLforStep(slideContents, i);
-	iframe.contentDocument.body.innerHTML = "";
+	if (iframe.contentDocument.body)
+		iframe.contentDocument.body.innerHTML = "";
 	iframe.contentDocument.write(html);
 	//document.getElementById('code_window').innerText = html;
 	myCodeMirror.setValue(html);
