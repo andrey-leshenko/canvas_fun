@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;">
+	<script>
+
+var canvas = document.getElementById('myCanvas');
+var ctx = canvas.getContext('2d');
+
+var gridSpacing = 15;
+var startx = [];
+var starty = [];
+var px = [];
+var py = [];
+var vx = [];
+var vy = [];
+
+var mouseX = 0;
+var mouseY = 0;
+var mouseDown = false;
+
+for (var y = gridSpacing; y < canvas.height - gridSpacing; y += gridSpacing) {
+	for (var x = gridSpacing; x < canvas.width - gridSpacing; x += gridSpacing) {
+		startx.push(x);
+		starty.push(y);
+		px.push(x);
+		py.push(y);
+		vx.push(0);
+		vy.push(0);
+	}
+}
+
+function onMouseEvent(e) {
+	var x = e.clientX - canvas.offsetLeft;
+	var y = e.clientY - canvas.offsetTop;
+
+	if (e.type == 'mousedown') {
+		mouseDown = true;
+	}
+	else if (e.type == 'mouseup') {
+		mouseDown = false;
+	}
+	else if (e.type == 'mousemove') {
+		mouseX = x;
+		mouseY = y;
+	}
+}
+
+function update() {
+	ctx.fillStyle = 'black';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = 'white';
+
+	if (mouseDown) {
+		for (var i = 0; i < px.length; i++) {
+			var dx = mouseX - px[i];
+			var dy = mouseY - py[i];
+			var dist = Math.sqrt(dx * dx + dy * dy) + 1;
+
+			vx[i] += dx / dist;
+			vy[i] += dy / dist;
+		}
+	}
+
+	for (var i = 0; i < px.length; i++) {
+		var dx = startx[i] - px[i];
+		var dy = starty[i] - py[i];
+		var dist = Math.sqrt(dx * dx + dy * dy) + 1;
+
+		vx[i] += dx / dist * 0.5;
+		vy[i] += dy / dist * 0.5;
+	}
+
+	for (var i = 0; i < px.length; i++) {
+		px[i] += vx[i];
+		py[i] += vy[i];
+
+		vx[i] *= 0.93;
+		vy[i] *= 0.93;
+	}
+
+	for (var i = 0; i < px.length; i++) {
+		ctx.fillRect(px[i], py[i], 3, 3);
+	}
+
+	setTimeout(update, 30);
+}
+
+document.addEventListener('mousedown', onMouseEvent);
+document.addEventListener('mouseup', onMouseEvent);
+document.addEventListener('mousemove', onMouseEvent);
+
+update();
+
+	</script>
+</body>
+</html>

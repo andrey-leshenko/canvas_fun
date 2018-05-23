@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;">
+	<script>
+
+var canvas = document.getElementById('myCanvas');
+var ctx = canvas.getContext('2d');
+
+var copies = 7;
+var prevX = 0;
+var prevY = 0;
+var mouseDown = false;
+
+function onMouseEvent(e) {
+	var x = e.clientX - canvas.offsetLeft;
+	var y = e.clientY - canvas.offsetTop;
+
+	if (e.type == 'mousedown') {
+		prevX = x;
+		prevY = y;
+		mouseDown = true;
+	}
+	else if (e.type == 'mouseup') {
+		mouseDown = false;
+	}
+	else if (e.type == 'mousemove') {
+		if (mouseDown) {
+			draw(prevX, prevY, x, y);
+			prevX = x;
+			prevY = y;
+		}
+	}
+	//ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function draw(ax, ay, bx, by) {
+	var step = canvas.width / copies;
+
+	ctx.lineWidth = 2;
+
+	for (var i = -copies; i <= copies; i++) {
+		for (var k = -copies; k <= copies; k++) {
+			var shiftX = i * step;
+			var shiftY = k * step;
+
+			ctx.beginPath();
+			ctx.moveTo(ax + shiftX, ay + shiftY);
+			ctx.lineTo(bx + shiftX, by + shiftY);
+			ctx.stroke();
+		}
+	}
+
+	//setTimeout(update, 30);
+}
+
+document.addEventListener('mousedown', onMouseEvent);
+document.addEventListener('mouseup', onMouseEvent);
+document.addEventListener('mousemove', onMouseEvent);
+
+	</script>
+</body>
+</html>
