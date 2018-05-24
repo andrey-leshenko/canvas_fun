@@ -52,6 +52,9 @@ var iframe = document.getElementById('miframe');
 
 var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('code_window'),
 	{readonly: true, lineWrapping: true, viewportMargin: Infinity});
+myCodeMirror.options.readOnly = true; // Was needed on linux FF
+var currFontSize = 4;
+var fontSizes = ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'];
 
 var slideIndex = 0;
 var slideCount = slides.length;
@@ -68,7 +71,10 @@ function loadSlide(n) {
 
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', 'presentation_data/' + slides[n], true);
+	xhr.overrideMimeType('text/html');
 	xhr.onreadystatechange = function() {
+		if (this.readyState !== 4)
+			return;
 		if (this.status !== 200)
 			console.error('Couldn\'t load file');
 		slideContents = this.responseText;
@@ -82,7 +88,7 @@ function slideLoaded() {
 	stepCount = getStepCount(slideContents);
 	if (stepIndex > 0)
 		stepIndex = 0;
-	if (stepIndex < 0)
+	else if (stepIndex < 0)
 		stepIndex = stepCount - 1;
 	loadStep(stepIndex);
 }
@@ -92,14 +98,18 @@ function loadStep(i) {
 	var html = getHTMLforStep(slideContents, i);
 	if (iframe.contentDocument.body)
 		iframe.contentDocument.body.innerHTML = "";
+	iframe.contentDocument.open();
 	iframe.contentDocument.write(html);
-	//document.getElementById('code_window').innerText = html;
+	iframe.contentDocument.close();
+
+	var scrollTop = myCodeMirror.getScrollInfo().top;
 	myCodeMirror.setValue(html);
+	myCodeMirror.scrollTo(null, scrollTop);
 }
 
 function onKeyEvent(e) {
 	if (e.key == 'j' || e.key == 'ArrowRight' || e.key == ' ') {
-		if (stepIndex < stepCount - 1) {
+		if (stepIndex < stepCount - 1 && !e.shiftKey) {
 			loadStep(stepIndex + 1);
 		}
 		else if (slideIndex < slideCount - 1) {
@@ -108,13 +118,20 @@ function onKeyEvent(e) {
 		}
 	}
 	if (e.key == 'k' || e.key == 'ArrowLeft') {
-		if (stepIndex > 0) {
+		if (stepIndex > 0 && !e.shiftKey) {
 			loadStep(stepIndex - 1);
 		}
 		else if (slideIndex > 0) {
 			stepIndex = -1;
 			loadSlide(slideIndex - 1);
 		}
+	}
+	if (e.key == '+' || e.key == '=' || e.key == '-' || e.key == '_') {
+		if (e.key == '+' || e.key == '=')
+			currFontSize = Math.min(currFontSize + 1, fontSizes.length);
+		else
+			currFontSize = Math.max(currFontSize - 1, 0);
+		myCodeMirror.getWrapperElement().style.fontSize = fontSizes[currFontSize];
 	}
 }
 
