@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <body>
+	<h1>Advanced Drawing</h1>
 	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;"></canvas>
 	<script>
 
@@ -10,7 +11,6 @@ var ctx = canvas.getContext('2d');
 
 ctx.strokeRect(250, 247, 400, 250);
 // @2
-
 ctx.fillRect(300, 347, 100, 150);
 // @3
 
@@ -42,11 +42,12 @@ ctx.closePath();
 
 ctx.fillStyle = 'green';
 ctx.fill();
-
 // @8
+
 ctx.strokeStyle = 'black';
 ctx.lineWidth = 5;
 ctx.stroke();
+// @9
 
 // Tree 2
 
@@ -70,6 +71,7 @@ ctx.fill();
 ctx.strokeStyle = 'black';
 ctx.lineWidth = 5;
 ctx.stroke();
+// @10
 
 // Roof
 
@@ -81,6 +83,7 @@ ctx.closePath();
 
 ctx.fillStyle = 'rgb(229, 2, 2)';
 ctx.fill();
+// @11
 
 // Text
 

@@ -160,6 +160,7 @@ function getStepCount(html) {
 function getHTMLforStep(html, step) {
 	var lines = html.split('\n');
 	var reg = /@(\d+)/;
+	var reg2 = /@(\d+)-(\d+)/;
 
 	var newLines = [];
 	var skipping = false;
@@ -168,6 +169,11 @@ function getHTMLforStep(html, step) {
 		if (reg.test(lines[i])) {
 			var start = parseInt(lines[i].match(reg)[1]);
 			skipping = start > step;
+
+			if (!skipping && reg2.test(lines[i])) {
+				var end = parseInt(lines[i].match(reg2)[2]);
+				skipping = step > end;
+			}
 		}
 		else if (!skipping) {
 			newLines.push(lines[i]);
@@ -178,8 +184,11 @@ function getHTMLforStep(html, step) {
 }
 
 function getNewRangesForStep(html, step) {
+	if (step == 0)
+		return [];
 	var lines = html.split('\n');
 	var reg = /@(\d+)/;
+	var reg2 = /@(\d+)-(\d+)/;
 
 	var newLines = [];
 	var skipping = false;
@@ -193,6 +202,11 @@ function getNewRangesForStep(html, step) {
 		if (reg.test(lines[i])) {
 			var start = parseInt(lines[i].match(reg)[1]);
 			skipping = start > step;
+
+			if (!skipping && reg2.test(lines[i])) {
+				var end = parseInt(lines[i].match(reg2)[2]);
+				skipping = step > end;
+			}
 		}
 		else if (!skipping) {
 			newLines.push(lines[i]);

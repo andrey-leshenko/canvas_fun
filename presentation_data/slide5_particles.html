@@ -1,34 +1,45 @@
 <!DOCTYPE html>
 <html>
 <body>
+	<h1>Particles</h1>
 	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;"></canvas>
 	<script>
 
 var canvas = document.getElementById('myCanvas');
 var ctx = canvas.getContext('2d');
+// @1
 
 var gridSpacing = 15;
-var startx = [];
-var starty = [];
 var px = [];
 var py = [];
+// @8
 var vx = [];
 var vy = [];
+// @13
+var startx = [];
+var starty = [];
+// @6
 
 var mouseX = 0;
 var mouseY = 0;
 var mouseDown = false;
+// @2
 
 for (var y = gridSpacing; y < canvas.height - gridSpacing; y += gridSpacing) {
 	for (var x = gridSpacing; x < canvas.width - gridSpacing; x += gridSpacing) {
+		// @13
 		startx.push(x);
 		starty.push(y);
+		// @2
 		px.push(x);
 		py.push(y);
+		// @8
 		vx.push(0);
 		vy.push(0);
+		// @2
 	}
 }
+// @7
 
 function onMouseEvent(e) {
 	var x = e.clientX - canvas.offsetLeft;
@@ -46,10 +57,13 @@ function onMouseEvent(e) {
 	}
 }
 
+// @3
 function update() {
+	// @5
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = 'white';
+	// @9
 
 	if (mouseDown) {
 		for (var i = 0; i < px.length; i++) {
@@ -61,6 +75,7 @@ function update() {
 			vy[i] += dy / dist;
 		}
 	}
+	// @14
 
 	for (var i = 0; i < px.length; i++) {
 		var dx = startx[i] - px[i];
@@ -70,27 +85,36 @@ function update() {
 		vx[i] += dx / dist * 0.5;
 		vy[i] += dy / dist * 0.5;
 	}
+	// @10
 
 	for (var i = 0; i < px.length; i++) {
 		px[i] += vx[i];
 		py[i] += vy[i];
+		// @12
 
 		vx[i] *= 0.93;
 		vy[i] *= 0.93;
+		// @10
 	}
+	// @3
 
 	for (var i = 0; i < px.length; i++) {
 		ctx.fillRect(px[i], py[i], 3, 3);
 	}
+	// @11
 
 	setTimeout(update, 30);
+	// @3
 }
+// @7
 
 document.addEventListener('mousedown', onMouseEvent);
 document.addEventListener('mouseup', onMouseEvent);
 document.addEventListener('mousemove', onMouseEvent);
 
+// @4
 update();
+// @0
 
 	</script>
 </body>

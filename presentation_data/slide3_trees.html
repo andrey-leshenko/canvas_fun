@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <body>
+	<h1>Trees</h1>
+	<!-- @12 -->
 	<input type="range" min="0" max="100" value="37" id="startR"/>
 	<br>
 	<input type="range" min="-100" max="100" value="32" id="t1"/>
@@ -10,49 +12,71 @@
 	<input type="range" min="0" max="100" value="57" id="r2"/>
 	<br>
 
+	<!-- @0 -->
 	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;"></canvas>
 	<script>
 
 var canvas = document.getElementById('myCanvas');
 var ctx = canvas.getContext('2d');
+// @1
 
-var startR = canvas.height / 10;
+var startR = canvas.height * 0.17;
 var t1 = -0.3;
 var t2 = 0.5;
 var r1 = 0.8;
 var r2 = 0.8;
 
-function update() {
+
+// @6
+function draw() {
+	// @13
 	startR = document.getElementById('startR').value / 100 * canvas.height;
 	t1 = document.getElementById('t1').value / 100 * Math.PI;
 	t2 = document.getElementById('t2').value / 100 * Math.PI;
 	r1 = document.getElementById('r1').value / 100;
 	r2 = document.getElementById('r2').value / 100;
+	// @15
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+	// @6-8
+	draw_tree(canvas.width / 2, canvas.height * 0.9, Math.PI * 1.5, startR, 2);
+	// @9-9
+	draw_tree(canvas.width / 2, canvas.height * 0.9, Math.PI * 1.5, startR, 4);
+	// @10-10
+	draw_tree(canvas.width / 2, canvas.height * 0.9, Math.PI * 1.5, startR, 7);
+	// @11
 	draw_tree(canvas.width / 2, canvas.height * 0.9, Math.PI * 1.5, startR, 11);
+// @6
 }
 
+// @2
 function draw_tree(x, y, theta, r, n) {
+	// @3
 	if (n <= 0)
 		return;
+	// @4
 
-	//console.log(x, y, theta, r, n);
 	var endX = x + Math.cos(theta) * r;
 	var endY = y + Math.sin(theta) * r;
+	// @5
 
 	ctx.beginPath();
 	ctx.moveTo(x, y);
 	ctx.lineTo(endX, endY);
 	ctx.stroke();
+	// @8
 
 	draw_tree(endX, endY, theta + t1, r * r1, n - 1);
 	draw_tree(endX, endY, theta + t2, r * r2, n - 1);
+// @2
 }
+// @7
 
-update();
-setInterval(update, 30);
+draw();
+// @14
+setInterval(draw, 30);
+// @0
 
 	</script>
 </body>
