@@ -35,6 +35,7 @@ let keys = {};
 let burstSize = 40;
 let fireSpeed = 20;
 let antiLife = 2;
+let fall = false;
 
 function update() {
 	if (mouseDown) {
@@ -108,6 +109,41 @@ function update() {
 
 		vx[i] *= 0.95;
 		vy[i] *= 0.95;
+	}
+
+	// Sand falling
+
+	if (fall) {
+		for (let i = 0; i < 4; i++) {
+			for (let y = H - 1; y >= 1; y--) {
+				for (let x = (i % 2 ? 0 : W); (i % 2 ? (x < W) : (x >= 0)); (i % 2 ? (x++) : (x--))) {
+					if (!soil[lin(x, y)] && soil[lin(x, y - 1)]) {
+						soil[lin(x, y)] = 255;
+						soil[lin(x, y - 1)] = 0;
+						imageData.data[lin(x, y) * 4 + 3] = 255;
+						imageData.data[lin(x, y - 1) * 4 + 3] = 0;
+					}
+					else {
+						if (Math.random() < 0.5) {
+							if (x > 0 && !soil[lin(x, y)] && soil[lin(x - 1, y - 1)]) {
+								soil[lin(x, y)] = 255;
+								soil[lin(x - 1, y - 1)] = 0;
+								imageData.data[lin(x, y) * 4 + 3] = 255;
+								imageData.data[lin(x - 1, y - 1) * 4 + 3] = 0;
+							}
+						}
+						else {
+							if (x < W - 1 && !soil[lin(x, y)] && soil[lin(x + 1, y - 1)]) {
+								soil[lin(x, y)] = 255;
+								soil[lin(x + 1, y - 1)] = 0;
+								imageData.data[lin(x, y) * 4 + 3] = 255;
+								imageData.data[lin(x + 1, y - 1) * 4 + 3] = 0;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// Movement
@@ -216,6 +252,9 @@ function onKeyEvent(e) {
 	if (e.type == 'keydown') {
 		if (e.key == 'q') {
 			antiOn = !antiOn;
+		}
+		if (e.key == ' ') {
+			fall = !fall;
 		}
 		if (e.key == 'c') {
 			for (let y = H - 300; y < H; y++) {
