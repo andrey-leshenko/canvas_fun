@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<h1>Example 1</h1>
+	<canvas id="myCanvas" width="900" height="600" style="border:1px solid #000000;">
+	<script>
+
+/// 1-
+
+var canvas = document.getElementById('myCanvas');
+var ctx = canvas.getContext('2d');
+
+var points = [];
+
+function onMouseDown(e) {
+	var x = e.clientX - canvas.offsetLeft;
+	var y = e.clientY - canvas.offsetTop;
+	//ctx.strokeRect(x, y, 5, 5);
+	points.push([x, y]);
+
+	update();
+}
+
+var canvasData = ctx.createImageData(canvas.width, canvas.height);
+
+function update() {
+	var threshold = 0.001;
+	var x, y;
+	for (x = 0; x < canvas.width; x++) {
+		for (y = 0; y < canvas.height; y++) {
+			var pixelValue = 0;
+			for (var b = 0; b < points.length; b++) {
+				var dx = points[b][0] - x;
+				var dy = points[b][1] - y;
+				pixelValue += 1 / (dx * dx + dy * dy);
+			}
+			var inside = pixelValue > threshold;
+
+			if (!inside)
+				continue;
+
+			var height;
+
+			for (height = 0; pixelValue > threshold; height += 1) {
+				pixelValue = 0;
+				for (var b = 0; b < points.length; b++) {
+					var dx = points[b][0] - x;
+					var dy = points[b][1] - y;
+					var dz = height;
+					pixelValue += 1 / (dx * dx + dy * dy + dz * dz);
+				}
+			}
+
+			var i = (y * canvas.width + x) * 4;
+			canvasData.data[i + 0] = height;
+			canvasData.data[i + 1] = 128 + (height - canvasData.data[i - 4]) * 10;
+			canvasData.data[i + 2] = 128 + (height - canvasData.data[i - 4 * canvas.width]) * 10;
+			canvasData.data[i + 3] = 255;
+		}
+	}
+	ctx.putImageData(canvasData, 0, 0);
+
+	for (var b = 0; b < points.length; b++) {
+		var x = points[b][0];
+		var y = points[b][1];
+	}
+}
+
+canvas.addEventListener('mousedown', onMouseDown);
+//setInterval(update, 100);
+
+	</script>
+</body>
+</html>
