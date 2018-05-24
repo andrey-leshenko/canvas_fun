@@ -36,6 +36,9 @@ iframe {
 	font-size: large;
 	font-weight: bolder;
 }
+.new_line {
+	background-color: yellow;
+}
 	</style>
 </head>
 <body>
@@ -105,6 +108,13 @@ function loadStep(i) {
 	var scrollTop = myCodeMirror.getScrollInfo().top;
 	myCodeMirror.setValue(html);
 	myCodeMirror.scrollTo(null, scrollTop);
+
+	var newRanges = getNewRangesForStep(slideContents, i);
+	for (var r = 0; r < newRanges.length; r++) {
+		for (var l = newRanges[r][0]; l < newRanges[r][1]; l++)
+			myCodeMirror.addLineClass(l, 'background', 'new_line');
+	}
+
 }
 
 function onKeyEvent(e) {
@@ -165,6 +175,44 @@ function getHTMLforStep(html, step) {
 	}
 
 	return newLines.join('\n');
+}
+
+function getNewRangesForStep(html, step) {
+	var lines = html.split('\n');
+	var reg = /@(\d+)/;
+
+	var newLines = [];
+	var skipping = false;
+
+	var ranges = [];
+	var from;
+	var to;
+	var counting = false;
+
+	for (var i = 0; i < lines.length; i++) {
+		if (reg.test(lines[i])) {
+			var start = parseInt(lines[i].match(reg)[1]);
+			skipping = start > step;
+		}
+		else if (!skipping) {
+			newLines.push(lines[i]);
+		}
+
+		if (reg.test(lines[i])) {
+			if (counting) {
+				counting = false;
+				to = newLines.length;
+				ranges.push([from, to]);
+			}
+			var start = parseInt(lines[i].match(reg)[1]);
+			if (start == step) {
+				counting = true;
+				from = newLines.length;
+			}
+		}
+	}
+
+	return ranges;
 }
 	</script>
 </body>
