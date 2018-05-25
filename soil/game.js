@@ -4,7 +4,7 @@ let ctx = canvas.getContext('2d');
 let W = canvas.width;
 let H = canvas.height;
 
-let soil = new Array(W * H);
+let soil = new Uint8Array(W * H);
 soil.fill(0);
 let imageData = ctx.createImageData(W, H);
 
@@ -27,8 +27,8 @@ var vx = [];
 var vy = [];
 var anti = [];
 
-var mouseX = 0;
-var mouseY = 0;
+var mouseX = W;
+var mouseY = H;
 var mouseDown = false;
 var antiOn = false;
 let keys = {};
@@ -116,33 +116,40 @@ function update() {
 	if (fall) {
 		for (let i = 0; i < 4; i++) {
 			for (let y = H - 1; y >= 1; y--) {
-				for (let x = (i % 2 ? 0 : W); (i % 2 ? (x < W) : (x >= 0)); (i % 2 ? (x++) : (x--))) {
-					if (!soil[lin(x, y)] && soil[lin(x, y - 1)]) {
-						soil[lin(x, y)] = 255;
-						soil[lin(x, y - 1)] = 0;
-						imageData.data[lin(x, y) * 4 + 3] = 255;
-						imageData.data[lin(x, y - 1) * 4 + 3] = 0;
+				let start = i % 2 ? 0 : W;
+				let end = i % 2 ? W : 0;
+				let step = i % 2 ? 1 : -1;
+
+				let point = lin(start, y);
+				let up = lin(start, y - 1);
+
+				for (let x = start; x != end; x += step, point += step, up +=step) {
+					if (soil[point])
+						continue;
+
+					if (soil[up]) {
+						soil[point] = 255;
+						soil[up] = 0;
 					}
 					else {
 						if (Math.random() < 0.5) {
-							if (x > 0 && !soil[lin(x, y)] && soil[lin(x - 1, y - 1)]) {
-								soil[lin(x, y)] = 255;
-								soil[lin(x - 1, y - 1)] = 0;
-								imageData.data[lin(x, y) * 4 + 3] = 255;
-								imageData.data[lin(x - 1, y - 1) * 4 + 3] = 0;
+							if (soil[lin(x - 1, y - 1)] && x >= 1) {
+								soil[point] = 255;
+								soil[up - 1] = 0;
 							}
 						}
 						else {
-							if (x < W - 1 && !soil[lin(x, y)] && soil[lin(x + 1, y - 1)]) {
-								soil[lin(x, y)] = 255;
-								soil[lin(x + 1, y - 1)] = 0;
-								imageData.data[lin(x, y) * 4 + 3] = 255;
-								imageData.data[lin(x + 1, y - 1) * 4 + 3] = 0;
+							if (soil[up + 1] && x < W - 1) {
+								soil[point] = 255;
+								soil[up + 1] = 0;
 							}
 						}
 					}
 				}
 			}
+		}
+		for (let i = 0; i < W * H; i++) {
+			imageData.data[i * 4 + 3] = soil[i];
 		}
 	}
 
@@ -191,40 +198,6 @@ function update() {
 	ctx.fillText((antiOn ? '-' : '+') + ' count: ' + burstSize + ' speed: ' + fireSpeed, 10, 10);
 
 	setTimeout(update, 16);
-
-	/*
-	ctx.fillStyle = 'black';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'white';
-
-	if (mouseDown) {
-		for (var i = 0; i < px.length; i++) {
-			var dx = mouseX - px[i];
-			var dy = mouseY - py[i];
-			var dist = Math.sqrt(dx * dx + dy * dy) + 1;
-
-			vx[i] += dx / dist;
-			vy[i] += dy / dist;
-		}
-	}
-
-	for (var i = 0; i < px.length; i++) {
-		var dx = startx[i] - px[i];
-		var dy = starty[i] - py[i];
-		var dist = Math.sqrt(dx * dx + dy * dy) + 1;
-
-		vx[i] += dx / dist * 0.5;
-		vy[i] += dy / dist * 0.5;
-	}
-
-	for (var i = 0; i < px.length; i++) {
-		px[i] += vx[i];
-		py[i] += vy[i];
-
-		vx[i] *= 0.93;
-		vy[i] *= 0.93;
-	}
-	*/
 }
 
 function onMouseEvent(e) {
